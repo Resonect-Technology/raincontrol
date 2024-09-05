@@ -1,0 +1,20 @@
+{
+    "config": {
+        "step": {
+            "init": {
+                "data": {
+                    "demo_mode": "Enable Demo Mode"
+                }
+            }
+        },
+        "options": {
+            "step": {
+                "init": {
+                    "data": {
+                        "demo_mode": "Enable Demo Mode"
+                    }
+                }
+            }
+        }
+    }
+}
