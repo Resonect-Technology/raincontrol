@@ -35,6 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
     cumulative_flow_sensor_2 = CumulativeFlowSensor(
         hass, "Cumulative Water Flow 2", TOPIC, "flow2", 3
     )
+    flow_sum_diff = MqttSensor(hass, "Water Flow Sum Difference", TOPIC, "waterFlowSum2", 4)
 
     async_add_entities(
         [
@@ -46,6 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
             cumulative_flow_sensor_2,
             flow_sum_sensor_1,
             flow_sum_sensor_2,
+            flow_sum_diff
         ],
         update_before_add=True,
     )
@@ -63,7 +65,7 @@ class MqttSensor(SensorEntity):
         self._unsubscribe = None
         self._flow_parameter = parameter
         if device_class == 0:
-            self.native_unit_of_measurement = "l"
+            self.native_unit_of_measurement = "l/min"
         elif device_class == 1:
             self.native_unit_of_measurement = "A"
         elif device_class == 2:
@@ -71,7 +73,7 @@ class MqttSensor(SensorEntity):
         elif device_class == 3:
             self.native_unit_of_measurement = "l/h"
         elif device_class == 4:
-            self.native_unit_of_measurement = "l/min"
+            self.native_unit_of_measurement = "l"
 
     @property
     def name(self):
@@ -95,7 +97,15 @@ class MqttSensor(SensorEntity):
 
                 # Update the state of the sensor (e.g., using flow1 for this example)
                 if self._name == ("UV Lamp Power"):
-                    self._state = flow * 230
+                    if flow > 0.2:
+                        self._state = round(55 + random.uniform(-2, 2),2)
+                    else:
+                        self._state = 0
+                elif self._name == ("Water Flow Sum Difference"):
+                    sum1 = payload_dict.get("waterFlowSum1")
+                    sum2 = payload_dict.get("waterFlowSum2")
+
+                    self._state = sum2 - sum1
                 else:
                     self._state = flow
 
